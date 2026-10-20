@@ -25,17 +25,25 @@ PRODUCT_SOONG_NAMESPACES += \
 AUDIO_FEATURE_ENABLED_DS2_DOLBY_DAP := true
 
 # SEPolicy
+
+# ------------------------------------------------------------------
+# MTK_IMS_FIXES FIX 9: vendor.dolby.media.c2@1.0-service DISABLED.
+# Its blob-side component objects were built against the pre-A17 RefBase
+# ABI; A17 libutils reads a stale mRefs offset and SIGSEGVs inside
+# BnHwComponentStore::_hidl_createComponent. The interface lib is Soong
+#-built, so a binary patch cannot persist tree-side.
+# Audio stack (dms HAL + dax) keeps working; c2.dolby video codecs go.
+# Applied by MTK_IMS_FIXES/apply_fixes.sh - do not hand-edit.
+# ------------------------------------------------------------------
 BOARD_VENDOR_SEPOLICY_DIRS += $(DOLBY_PATH)/sepolicy/vendor
 
 # HIDL
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += $(DOLBY_PATH)/dolby_framework_matrix.xml
 DEVICE_MANIFEST_FILE += $(DOLBY_PATH)/vendor.dolby.hardware.dms@2.0-service.xml
-DEVICE_MANIFEST_FILE += $(DOLBY_PATH)/vendor.dolby.media.c2.xml
     
 # Configs
 PRODUCT_COPY_FILES += \
     $(DOLBY_PATH)/configs/dax-default.xml:$(TARGET_COPY_OUT_VENDOR)/etc/dolby/dax-default.xml \
-    $(DOLBY_PATH)/configs/media_codecs_dolby_audio.xml:$(TARGET_COPY_OUT_VENDOR)/etc/media_codecs_dolby_audio.xml
 
 # Dolby VNDK libs
 PRODUCT_PACKAGES += \
@@ -111,7 +119,6 @@ PRODUCT_COPY_FILES += \
 
 # Codec2 (Dolby)
 PRODUCT_COPY_FILES += \
-    $(DOLBY_PATH)/proprietary/vendor/etc/init/vendor.dolby.media.c2@1.0-service.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/vendor.dolby.media.c2@1.0-service.rc \
 
 PRODUCT_PACKAGES += \
     libdapparamstorage \
@@ -126,7 +133,6 @@ PRODUCT_PACKAGES += \
     libcodec2_soft_dolby \
     libcodec2_store_dolby \
     libdeccfg \
-    vendor.dolby.media.c2@1.0-service \
     libdlbvol \
     libswdap \
     libswgamedap \
